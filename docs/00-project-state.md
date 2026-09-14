@@ -24,9 +24,11 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 - RTZR(Return Zero) — STEP1 1차 조사에서 추천했으나, 사용자가 Soniox API 키를 이미 보유해 기각. 제3자 벤치마크(AI-Hub CER 5.91%)는 더 신뢰도 높음 → Soniox 실측 품질이 기준 미달이면 재검토 대상으로 보류.
 
 ## 참고자료
-- `docs/02-plaud-ingestion-options.md` — PLAUD는 서드파티 STT 연동 기능/공식 Public API 없음 확인. 오디오 추출은 수동(MVP) → Applaud(자동화, 서드파티 리스크 ⚠️) 순으로 진행 권장. STEP3/STEP6에서 반영.
+- `docs/02-plaud-ingestion-options.md` (v2) — PLAUD 공식 MCP(`get_file`)로 원본 오디오 presigned URL 추출을 본 세션에서 실제 계정으로 검증 완료. Applaud(비공식) 불필요해짐. Zapier는 PLAUD 자체 전사/요약 완료 후에만 트리거되어 quota 비의존 원칙과 충돌 가능 → 오디오 추출 용도로 비권장. n8n이 MCP를 직접 호출 가능한지는 미확인(Claude 세션이 추출 에이전트 역할을 하는 방식이 현재 기본안).
 
 ## 미해결 / 확인 필요
+- Plaud MCP의 n8n 직접 호출 가능 여부(원격 엔드포인트/인증 방식) — `docs.plaud.ai/plaud-mcp-cli/mcp` 원문 확인 필요
+- PLAUD 앱에 자동 전사 on/off 설정이 있는지 (quota 소모 조건 확정용)
 - ⚠️ Soniox 한국어 정확도(WER 4.3%)는 자사 발표 수치, 독립 검증 없음 → PLAUD 실제 녹음으로 사람이 직접 품질 검수 필요
 - ⚠️ Soniox는 해외(미국) 리전 처리 — 영업 제안가 등 민감 비즈니스 대화의 개인정보/데이터 정책 미검증
 - ⚠️ Soniox 긴 오디오(파일크기/길이) 제한 — 공식 문서 원문 미열람(네트워크 제약), 계약/스케일업 전 확인 필요
