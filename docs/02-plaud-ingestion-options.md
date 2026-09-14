@@ -27,18 +27,32 @@
 | C. Riffado(비공식) | 동기화+자체 전사(OpenAI 호환만) | - | ❌ Soniox 미지원, 제외 |
 | D. Plaud Embedded | 하드웨어 파트너용 개발자 플랫폼 | - | ❌ 목적 불일치, 제외 |
 
-## n8n 연동 방식 — 결정 필요 (미해결)
-MCP로 오디오를 실제로 받아오는 것까진 확인했지만, **이걸 n8n 워크플로우에 어떻게 연결할지는 두 가지 방식이 있고 아직 결정 안 됨**:
+## n8n 연동 방식 — 미해결 2건 확인 완료 (v3, 2026-09-14)
 
-1. **n8n이 MCP 클라이언트로 직접 Plaud MCP 호출** — n8n에 MCP 클라이언트 노드가 있다면 가장 깔끔. 단, Plaud MCP가 n8n에서 접근 가능한 원격 엔드포인트(HTTP/SSE)를 제공하는지, 인증 방식이 무엇인지 **미확인** — `docs.plaud.ai/plaud-mcp-cli/mcp` 원문 확인 필요(네트워크 제약으로 이 세션에서 직접 열람 불가).
-2. **Claude 세션이 추출 에이전트 역할** — 주기 실행되는 Claude 세션(Routine)이 MCP로 새 녹음을 폴링 → 오디오를 Drive에 업로드 → n8n 웹훅을 호출해 Soniox 전사~Notion 기록 이어받기. **이 세션에서 실제로 작동 검증된 방식이라 신뢰도 높음.**
+### 1) n8n이 MCP를 직접 호출할 수 있는가 → **가능(기술적으로 확인), 실제 연결 테스트는 아직 안 함**
+- n8n에 **MCP Client Tool 노드**가 공식으로 존재. SSE/HTTP Streamable 전송을 지원하고, Bearer/개별 헤더/다중 헤더/**OAuth2** 인증을 지원함.
+- Plaud MCP의 **공식 원격 엔드포인트: `https://mcp.plaud.ai/mcp`**, 인증은 OAuth(Plaud 계정으로 로그인, 별도 API 키 발급 없음). ChatGPT/Claude Web 등 MCP 클라이언트에서 "Remote MCP server URL"에 이 주소를 넣는 방식과 동일한 패턴이므로 n8n의 MCP Client Tool 노드에도 같은 방식으로 연결 시도 가능.
+- ⚠️ 단, **HTTP로 연결 시 녹음 데이터가 Plaud의 US 리전 MCP 서버를 경유**함 — 영업/상담 등 민감 대화가 많은 이 프로젝트 특성상 데이터 처리 리전 이슈로 재확인.
+- ⚠️ n8n의 MCP Client Tool은 구조적으로 **"AI Agent" 노드 아래 Tool로 붙는 서브노드** — 단순 HTTP Request처럼 정해진 파라미터로 결정론적 호출을 하는 게 아니라, Agent(LLM)가 어떤 도구를 어떤 인자로 호출할지 판단하는 구조. "새 녹음 오디오를 매번 정확히 같은 방식으로 가져오기"엔 Agent의 판단 변동성이 리스크가 될 수 있음 — 프롬프트를 엄격하게 고정하거나, 결정론적 대안(Plaud CLI를 Execute Command 노드로 호출)과 비교 검토 필요.
+- **미검증(실제 연결 안 해봄)**: n8n에서 `https://mcp.plaud.ai/mcp` + OAuth2 credential 설정이 실제로 붙는지, Plaud가 n8n 같은 서드파티 클라이언트의 OAuth 등록을 허용하는지.
+
+### 2) PLAUD가 자동으로 전사해서 quota를 소모하는가 → **확인됨, 끌 수 있음**
+- PLAUD에는 **AutoFlow** 기능이 있음: 녹음이 동기화/업로드될 때마다 자동으로 transcript+summary를 생성 — **이때 quota가 소모됨**(수동 전사와 동일하게 카운트).
+- **AutoFlow는 앱에서 토글로 끌 수 있음.** 끄면 동기화만 되고 자동 전사는 발생하지 않음 → **MCP/CLI로 원본 오디오만 뽑아내는 우리 방식과 완전히 호환됨.**
+- ➜ **필수 액션**: PLAUD 앱 설정에서 AutoFlow를 꺼야 이 프로젝트의 핵심 전제("PLAUD 전사 quota 비의존")가 실제로 지켜짐. 켜둔 채로 두면 MCP로 원본만 가져와도 PLAUD 쪽에서 별도로 quota가 계속 소모됨.
+
+## 최종 권장 (v3)
+1. **지금 바로**: PLAUD 앱에서 AutoFlow 끄기 (사용자 액션, 5분)
+2. **1차 시도**: n8n에 MCP Client Tool 노드 + `https://mcp.plaud.ai/mcp`(OAuth2)로 연결 테스트 → 되면 이게 가장 깔끔한 구조
+3. **1차 시도가 막히면(OAuth 미지원 등)**: Plaud CLI를 n8n의 Execute Command 노드(self-hosted n8n 전제)로 감싸는 결정론적 방식, 또는 Claude 세션이 추출 에이전트 역할(Routine으로 주기 폴링 → Drive 업로드 → n8n 웹훅 인계) — 이미 이 세션에서 실증된 방식
 
 ## 리스크 (⚠️)
-- ⚠️ Zapier 트리거가 PLAUD 자체 전사/요약 완료 후에만 발동 — 이 경로를 오디오 추출에 쓰면 PLAUD quota를 매 녹음마다 소모하게 될 가능성. **이 프로젝트의 핵심 전제(quota 비의존)와 충돌** → 오디오 추출 용도로는 비권장, MCP/CLI 우선.
-- ⚠️ n8n이 MCP를 직접 호출 가능한지 미확인 — 확인 전까지는 "Claude 세션이 에이전트" 방식을 기본안으로 둔다.
-- ⚠️ PLAUD가 녹음 업로드 시점에 자동 전사를 트리거하는지 여부(quota 소모 조건)는 표본 1건 관찰일 뿐 — 앱 설정에서 "자동 전사/자동 제목생성" 옵션 직접 확인 필요.
+- ⚠️ n8n ↔ Plaud MCP 실제 연결은 아직 테스트 안 함 — OAuth2 credential 설정이 실제로 되는지 확인 필요.
+- ⚠️ MCP Client Tool은 Agent 종속 구조라 완전한 결정론적 파이프라인에는 안 맞을 수 있음 — Agent 프롬프트를 엄격히 고정하거나 Plaud CLI 방식과 비교 필요.
+- ⚠️ HTTP MCP 경유 시 데이터가 US 리전 서버를 지남 — Soniox(마찬가지로 해외 처리)와 함께 이 프로젝트의 "국내 민감 데이터 처리" 관점에서 누적 리스크로 인지 필요.
 
 ## 다음 액션
-- [ ] `docs.plaud.ai/plaud-mcp-cli/mcp` 원문에서 MCP의 인증 방식/원격 접근 가능 여부 확인 (n8n 직접 연동 가능성 판단)
-- [ ] PLAUD 앱 설정에서 자동 전사 on/off 옵션 확인
-- [ ] STEP3(Drive Schema)/STEP6(n8n Workflow) 설계 시 "MCP 기반 Claude 에이전트 추출" vs "n8n MCP 클라이언트 직접 호출" 중 택1
+- [ ] (사용자) PLAUD 앱에서 AutoFlow 끄기
+- [ ] n8n에 MCP Client Tool 노드로 `https://mcp.plaud.ai/mcp` 연결 실제 테스트 (n8n 인스턴스 필요 — self-hosted/cloud 여부 확인 후 진행)
+- [ ] 연결 실패 시 Plaud CLI + Execute Command 노드 방식으로 폴백
+- [ ] STEP3(Drive Schema)/STEP6(n8n Workflow) 설계에 확정된 방식 반영
