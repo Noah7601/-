@@ -25,10 +25,13 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 
 ## 참고자료
 - `docs/02-plaud-ingestion-options.md` (v3) — PLAUD 공식 MCP(`get_file`)로 원본 오디오 presigned URL 추출 검증 완료. n8n의 **MCP Client Tool 노드**로 Plaud 공식 원격 MCP(`https://mcp.plaud.ai/mcp`, OAuth2)에 직접 연결 가능함을 확인(단, 실제 연결 테스트는 아직 안 함, Agent 종속 구조라 결정론적 호출엔 한계 있을 수 있음). PLAUD는 **AutoFlow** 기능이 자동 전사/요약으로 quota를 소모하며 **토글로 끌 수 있음** — 반드시 꺼야 quota 비의존 전제가 실제로 지켜짐.
+- `docs/03-architecture-v2.md` — 위 결정들을 반영한 갱신 마스터플랜. n8n은 **self-hosted Community Edition**(무료, CLI 폴백 가능) 권장. n8n 가격표는 검색 기반 미검증.
 
 ## 미해결 / 확인 필요
 - n8n MCP Client Tool 노드 ↔ `https://mcp.plaud.ai/mcp` OAuth2 실제 연결 테스트 (아직 안 해봄)
-- (사용자 액션) PLAUD 앱에서 AutoFlow 끄기 — 아직 확인/실행 안 됨
+- (사용자 액션) PLAUD 앱에서 AutoFlow 끄기 — **Claude는 조회 전용 MCP만 있어 대신 꺼줄 수 없음**, 아직 미완료
+- (사용자 결정) n8n self-hosted 설치 환경(Mac 상시구동 / VPS 등) 미정
+- n8n 가격표(Starter $20~, Pro $50~ 등)는 검색 스니펫 기반 — 공식 `n8n.io/pricing` 원문 미확인(네트워크 제약)
 - ⚠️ Soniox 한국어 정확도(WER 4.3%)는 자사 발표 수치, 독립 검증 없음 → PLAUD 실제 녹음으로 사람이 직접 품질 검수 필요
 - ⚠️ Soniox는 해외(미국) 리전 처리 — 영업 제안가 등 민감 비즈니스 대화의 개인정보/데이터 정책 미검증
 - ⚠️ Soniox 긴 오디오(파일크기/길이) 제한 — 공식 문서 원문 미열람(네트워크 제약), 계약/스케일업 전 확인 필요
