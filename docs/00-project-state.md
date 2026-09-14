@@ -8,9 +8,10 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 
 ## 완료
 - [x] STEP 1 — STT 엔진 선정 확정: **Soniox** (본 세션, `docs/01-stt-selection.md`)
+- [x] PLAUD AutoFlow 끄기 (사용자 확인, 2026-09-14) — quota 비의존 전제 실제로 충족됨
 
 ## 진행중
-- (없음 — 실측 테스트 및 STEP2 승인 대기)
+- n8n self-hosted 설치 환경 결정 대기 (Mac 상시구동 vs VPS)
 
 ## 결정사항 (변경 금지, 재질문 금지)
 - 4계층 데이터 분리: Source(Audio) / Transcript / Intelligence(Claude 출력) / Ledger(Notion) — 모델·템플릿 교체 시 재처리 가능해야 함
@@ -29,7 +30,6 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 
 ## 미해결 / 확인 필요
 - n8n MCP Client Tool 노드 ↔ `https://mcp.plaud.ai/mcp` OAuth2 실제 연결 테스트 (아직 안 해봄)
-- (사용자 액션) PLAUD 앱에서 AutoFlow 끄기 — **Claude는 조회 전용 MCP만 있어 대신 꺼줄 수 없음**, 아직 미완료
 - (사용자 결정) n8n self-hosted 설치 환경(Mac 상시구동 / VPS 등) 미정
 - n8n 가격표(Starter $20~, Pro $50~ 등)는 검색 스니펫 기반 — 공식 `n8n.io/pricing` 원문 미확인(네트워크 제약)
 - ⚠️ Soniox 한국어 정확도(WER 4.3%)는 자사 발표 수치, 독립 검증 없음 → PLAUD 실제 녹음으로 사람이 직접 품질 검수 필요

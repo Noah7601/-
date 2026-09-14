@@ -2,12 +2,8 @@
 
 > STEP1(STT) + PLAUD 연동 조사(MCP/Zapier/AutoFlow) 결과를 반영한 갱신 마스터플랜. STEP2(Notion Schema) 진행 전 최종 정렬용.
 
-## ⚠️ 먼저: AutoFlow는 내가 끌 수 없음
-가진 Plaud MCP 툴(`list_files`/`get_file`/`get_note`/`get_transcript`/`get_current_user`)은 **조회 전용**이라 설정 변경 권한이 없음. **AutoFlow는 사용자가 PLAUD 앱에서 직접 꺼야 함.**
-
-- 위치(공식 지원문서 기준, 앱 버전에 따라 메뉴명 다를 수 있음): PLAUD 앱 → **설정(Settings)** → **AutoFlow** → 전역 토글 off, 또는 개별 AutoFlow 항목별 토글 off
-- 안 보이면: 공식 문서 `support.plaud.ai` "AutoFlow" 문서를 직접 열어서 확인 필요(이 세션에서는 네트워크 제약으로 원문 열람 불가)
-- **미완료 상태**: 꺼졌는지 내가 검증할 방법이 없음(설정 조회 API 없음) → 껐으면 알려주면 STATE에 완료로 기록
+## ✅ AutoFlow 완료 (사용자 확인, 2026-09-14)
+사용자가 PLAUD 앱에서 직접 껐음. Claude는 조회 전용 MCP만 가지고 있어 설정 변경을 검증할 방법은 없음(사용자 확인에 근거). 이제 quota 비의존 전제가 실제로 충족됨.
 
 ## 갱신된 파이프라인
 
@@ -51,10 +47,10 @@ Notion Ledger (Recordings/Projects/People/Decisions/Tasks)
 - STT: **Soniox** (STEP1)
 - PLAUD 오디오 추출: **n8n MCP Client Tool → `https://mcp.plaud.ai/mcp`(OAuth2)**가 1차안, 실패 시 **Plaud CLI + Execute Command 노드** 폴백
 - n8n 배포: **Self-hosted Community Edition**(무료, executions 무제한, CLI 폴백 가능)
-- PLAUD AutoFlow: **꺼야 함(사용자 액션, 미완료)**
+- PLAUD AutoFlow: **꺼짐 (완료)**
 
 ## 다음 액션
-- [ ] (사용자) PLAUD 앱에서 AutoFlow 끄기 → 완료되면 알려주기
+- [x] (사용자) PLAUD 앱에서 AutoFlow 끄기
 - [ ] (사용자) n8n self-hosted 설치 환경 결정 (Mac 상시구동 / VPS 등)
 - [ ] n8n에 MCP Client Tool 노드로 `https://mcp.plaud.ai/mcp` 연결 실제 테스트
 - [ ] 연결 실패 시 Plaud CLI 폴백 검토
