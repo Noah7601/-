@@ -1,0 +1,100 @@
+const fs=require('fs');
+const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,BorderStyle,ShadingType,VerticalAlign}=require('docx');
+const FONT='맑은 고딕', BLUE='445FD6', GREY='666666';
+const W=9972; // text width in DXA (A4 11906 - margins)
+const t=(s,o={})=>new TextRun({text:s,font:FONT,size:o.size||20,bold:o.bold,color:o.color});
+const P=(s,o={})=>new Paragraph({alignment:o.align,spacing:{before:o.before||0,after:o.after||80,line:o.line||300},children:Array.isArray(s)?s:[t(s,o)]});
+const H=(s)=>new Paragraph({spacing:{before:280,after:100},keepNext:true,border:{bottom:{style:BorderStyle.SINGLE,size:6,color:BLUE,space:2}},children:[t(s,{size:24,bold:true,color:BLUE})]});
+const border={style:BorderStyle.SINGLE,size:4,color:'BFBFBF'};
+const borders={top:border,bottom:border,left:border,right:border};
+function cell(txt,w,o={}){
+  const lines=Array.isArray(txt)?txt:[txt];
+  return new TableCell({width:{size:w,type:WidthType.DXA},borders,verticalAlign:VerticalAlign.CENTER,
+    shading:o.head?{fill:'E8EDFA',type:ShadingType.CLEAR,color:'auto'}:(o.label?{fill:'F4F6FB',type:ShadingType.CLEAR,color:'auto'}:undefined),
+    margins:{top:60,bottom:60,left:90,right:90},
+    children:lines.map(l=>new Paragraph({alignment:o.center?AlignmentType.CENTER:undefined,spacing:{after:0,line:276},children:[t(l,{size:o.size||18,bold:o.head||o.label||o.bold,color:o.color})]}))});
+}
+function table(cols,rows,opts={}){
+  const head=opts.noHead?[]:[new TableRow({tableHeader:true,children:cols.map(c=>cell(c[0],c[1],{head:true,center:true}))})];
+  const body=rows.map(r=>new TableRow({cantSplit:true,children:r.map((v,i)=>cell(v,cols[i][1],{center:opts.center&&opts.center.includes(i),label:opts.label&&opts.label.includes(i)}))}));
+  return new Table({width:{size:W,type:WidthType.DXA},columnWidths:cols.map(c=>c[1]),rows:[...head,...body]});
+}
+const sp=()=>new Paragraph({spacing:{after:0},children:[]});
+
+const children=[
+ new Paragraph({alignment:AlignmentType.CENTER,spacing:{after:40},children:[t('이  력  서',{size:44,bold:true,color:BLUE})]}),
+ new Paragraph({alignment:AlignmentType.CENTER,spacing:{after:120},children:[t('강사 · 멘토 프로필 (강의 증빙용)',{size:20,color:GREY})]}),
+
+ H('인적사항'),
+ table([['',1500],['',3486],['',1500],['',3486]],[
+  ['성  명','강상경 (Kang Sang-gyeong)','생년월일','1990. 09. 21.'],
+  ['휴대폰','010-2642-3720','이메일','scobyisland@gmail.com'],
+  ['소  속','스코비아일랜드','직  위','대표'],
+  ['SNS','instagram @scoby_island','사업장','제주시 516로 3095, 205호 (제주지식산업센터)'],
+ ],{noHead:true,label:[0,2]}),
+
+ H('자기소개'),
+ P('발효와 추출 기술로 커피·카카오 등 글로벌 원자재를 대체하는 소재를 개발하는 스코비아일랜드의 대표입니다. 제주대학교에서 동물생명공학을 전공하고, 미래셀바이오에서 국가연구과제(R&D)와 상품기획을, LG상사 인니팜사업부에서 인사와 해외 농장개발 업무를 경험한 뒤 2023년 창업했습니다.'),
+ P('창업 후 특허 3건을 출원해 2건의 등록결정을 받았고, 청년창업사관학교·신사업창업사관학교·농식품 벤처육성 지원사업·LIPS II 등 정부 창업지원사업에 연이어 선정되어 수행했습니다. 이 과정에서 얻은 "선정되는 사업계획서"와 "R&D를 사업화하는 방법"을 대학생과 예비창업자에게 현장 사례 중심으로 전달합니다.'),
+ P('최근에는 1인 기업 운영에 AI 도구를 적극 활용하여 사업계획서·IR·행정 문서 작성과 정부지원사업 관리를 자동화하고 있으며, 소규모 창업팀을 위한 AX(AI 전환) 실무 강의도 준비하고 있습니다.'),
+
+ H('강의 가능 주제'),
+ table([['주제',2700],['핵심 내용',4172],['대상',1700],['시간',1400]],[
+  ['① 기술창업과 R&D 사업화','연구과제·특허를 제품과 매출로 연결하는 과정 / 대기업·연구소 출신 창업가의 실제 사례','예비창업자, 대학생','60~120분'],
+  ['② 선정되는 정부 창업지원사업 활용법','청창사·신사업창업사관학교·농식품 벤처육성·LIPS II 등 선정 경험 기반 사업계획서 작성 포인트와 사업비 운영','예비창업자, 초기 창업기업','90~120분'],
+  ['③ 발효·대체소재 창업 사례','콤부차 부산물(스코비)에서 대체커피·대체카카오·바이오 가죽까지, 발효 기반 제품 개발 스토리','대학생, 예비창업자','60분'],
+  ['④ 진로·취창업 특강','대기업(LG상사)·바이오 연구소를 거쳐 창업까지, 전공을 살린 진로 설계','대학생, 고교생','60분'],
+  ['⑤ AX 실무: 1인 기업의 AI 활용','AI 도구로 사업계획서·IR·행정문서 작성과 지원사업 관리를 자동화하는 실무 워크숍','예비창업자, 소상공인, 창업팀','120분(실습)'],
+ ],{center:[2,3]}),
+
+ H('강의 · 멘토링 이력 (최근순)'),
+ table([['일 시',1300],['주관·기관',1700],['행사·과정명',3000],['역할 및 내용',3972]],[
+  ['2026. 08. 04 – 08. 06','제주더큰내일센터',"탐나는인재 13기 선발 면접과정 '넥스톤' (2박3일)",'멘토단 참여 / 면접대상자·멘토단·운영진 약 100명 / 제주 에코그린리조트'],
+  ['2025. 06','제주더큰내일센터','업프로젝트 [기업 과제해결 프로젝트]','기업멘토 / 참여 청년 대상 계획 코칭 및 멘토링, 최종발표회 참여'],
+  ['2024. 11. 15','와이앤아처(주)','Y-Beginner Camp (제주)','예비창업자 1:1 멘토링 (R&D, 기술창업) / 15:00–18:00 / 유탑유블레스호텔 제주(함덕)'],
+  ['2023. 11. 16','언더독스 (하나금융그룹)','하나 소셜벤처 유니버시티 제주 워케이션 마르쉐','연사 / 창업팀 26팀(52명) 아이템 설명 청취 및 현장 피드백 / 라마다프라자 제주호텔'],
+  ['2023. 11. 10','제주대학교 진로취업과','진로·취창업 특강 (파주시진로지원센터 창업경진대회 수상 고교생 대상)','강사 / 수상 고등학생·교사 등 18명 / 제주대 중앙도서관 / 13:30–14:30'],
+ ]),
+
+ H('특허 · 지식재산'),
+ table([['출원번호',1900],['발명의 명칭',4072],['출원일',1500],['상태',2500]],[
+  ['10-2023-0167491','반려견용 섬유질 간식 및 이의 제조방법','2023. 11. 28','등록결정 (2026. 08) · 등록료 납부 완료'],
+  ['10-2023-0167492','미생물 셀룰로오스의 제조방법','2023. 11. 28','등록결정 (2026. 09)'],
+  ['10-2024-0122507','다용도 미생물 셀룰로오스의 제조방법','2024. 09. 09','심사 중 (의견서·보정서 제출)'],
+ ],{center:[0,2]}),
+ P('※ 출원인·발명자 강상경 / 대리인 대신국제특허법률사무소',{size:16,color:GREY,before:40}),
+
+ H('창업지원사업 선정 · 수상 · 대외활동'),
+ table([['시기',1300],['주관',2300],['내용',4572],['증빙',1800]],[
+  ['2026. 07','농림축산식품부 · 한국농업기술진흥원','AFPRO 2026 (제4회 농식품 테크 스타트업 창업박람회, 코엑스) 참가기업 · 감사장 수령 / 에이빙뉴스 보도','감사장, 기사'],
+  ['2026. 06','한국엔젤투자협회 · 한국농업기술진흥원','2026 호남 엔젤리더스포럼 & A+센터 육성기업 집담회 in 제주 — IR 발표기업 4개사 선정','선정 안내'],
+  ['2026. 04','한국농업기술진흥원 (호남A+센터)','2026년 농식품 벤처육성 지원사업 창업기업 선정 · 협약 체결 (사업화자금 지원)','협약서'],
+  ['2025. 10','중소벤처기업부 · 소상공인시장진흥공단','2025년 혁신소상공인 투자연계지원사업(LIPS II) 초기투자(스케일-딥) 선정 — 정부지원금 7,500만 원','선정 공문'],
+  ['2025. 09','제주지식재산센터','2025년 IP디딤돌프로그램 후속지원(포장디자인) 선정','선정 안내'],
+  ['2024. 04','제주관광대학교 창업보육센터','입주기업 선정','선정 안내'],
+  ['2024','중소벤처기업진흥공단 · 와이앤아처(주)','제주청년창업사관학교 14기 입교 · 졸업','입교사실 확인서'],
+  ['2023 · 2024','소상공인시장진흥공단 · 와이앤아처(주)','신사업창업사관학교(제주) 16기 졸업 · 제주지역 우수사례 2년 연속 선정','우수사례 자료'],
+  ['2022 – 2023','제주더큰내일센터','탐나는인재 6기 수료 (창업 실천트랙)','수료 확인'],
+ ],{center:[0]}),
+
+ H('경력사항'),
+ table([['근무기간',1500],['소  속',1500],['직위 / 부서',1700],['담당업무 및 성과',5272]],[
+  ['2023. 09. 21 – 현재','스코비아일랜드','대표 / 총괄',['· 추출·발효 기반 대체소재 플랫폼 기업 운영: 대체커피(알트커피), 대체카카오(JECAO), 천연색소, 감귤 발효 바이오 대체가죽','· 콤부차 부산물(스코비) 활용 반려견 식이섬유 간식 개발 — 특허 3건 출원, 2건 등록결정','· B2B 식품 기업 대상 소재 공급, 국내외 박람회 참가(AFPRO 2026, 태국 식품박람회)','· 정부 창업지원사업 5건 이상 선정·수행 (사업계획·IR·사업비 집행·성과보고 총괄)']],
+  ['2019. 03 – 2021. 08','LG상사','Junior Manager / 인니팜사업부',['· 인도네시아 팜오일 사업부 인사(HR) 및 농장개발 업무','· 해외 현지 법인·농장 운영 지원']],
+  ['2017. 02 – 2019. 02','미래셀바이오','주임',['· 국가연구과제(R&D) 수행','· 바이오 소재 기반 상품기획']],
+ ]),
+
+ H('학력사항'),
+ table([['졸업년도',1500],['학교명',3486],['전  공',3486],['학  위',1500]],[
+  ['2017. 02','제주대학교','동물생명공학','이학사'],
+ ],{center:[0,3]}),
+
+ H('주요 강의 · 자문 분야'),
+ P('기술창업 · R&D 사업화 · 정부 창업지원사업 활용 · 발효 식음료 및 대체소재 · 진로·취창업 · AX(AI 활용 실무) · 지식재산(특허) · 친환경 제조'),
+];
+
+const doc=new Document({
+ styles:{default:{document:{run:{font:FONT,size:20},paragraph:{spacing:{line:300}}}}},
+ sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1020,bottom:1020,left:967,right:967}}},children}]
+});
+Packer.toBuffer(doc).then(b=>{fs.writeFileSync('/home/user/-/resume/강상경_강사이력서_보완본.docx',b);console.log('ok');});
