@@ -13,6 +13,7 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 
 ## 진행중
 - (없음 — 맥 로컬에서 whisper.cpp/pyannote 설치·테스트 대기)
+- STEP 2 — Notion Schema 설계 완료 (`docs/05-notion-schema.md`): Recordings/Projects/People/Decisions/Tasks/Template Library 6개 DB. 실제 Notion(워크스페이스: SCOBYISLAND, scobyisland@gmail.com)에 생성할지 승인 대기
 
 ## 결정사항 (변경 금지, 재질문 금지)
 - 4계층 데이터 분리: Source(Audio) / Transcript / Intelligence(Claude 출력) / Ledger(Notion) — 모델·템플릿 교체 시 재처리 가능해야 함

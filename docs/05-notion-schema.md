@@ -1,4 +1,4 @@
-# STEP 2 — Notion Schema (1/2: Recordings · Projects · People)
+# STEP 2 — Notion Schema (완성: Recordings · Projects · People · Decisions · Tasks · Template Library)
 
 > 워크스페이스: **SCOBYISLAND** (scobyisland@gmail.com, 확인됨). 실제 생성 가능한 수준으로 설계. V1(지금 만들 것)과 V2(나중에 추가할 것)를 구분함.
 
@@ -84,8 +84,72 @@
 | Tasks.Owner → People | People.Tasks |
 | Tasks.Source Recording → Recordings | Recordings.Tasks |
 
-> Decisions/Tasks DB 설계는 다음 배치에서 이어서 작성.
+---
+
+## 4. Decisions
+
+| Property | Notion 타입 | 설명 / 옵션 | V1/V2 |
+|---|---|---|---|
+| Title | Title | 짧은 결정 설명. 예: "A사 1차 제안가격 2,800만원" | V1 |
+| Decision ID | Text | `DEC-YYYYMMDD-NNN`, n8n 생성 (Recording ID와 동일한 전략) | V1 |
+| Decision Date | Date | | V1 |
+| Project | Relation → Projects | | V1 |
+| People | Relation → People | 결정에 관여/합의한 사람 | V1 |
+| Source Recording | Relation → Recordings | 역추적의 핵심 | V1 |
+| Evidence | Text | Transcript 발췌 또는 timestamp. "왜 이렇게 결정했지?"를 몇 년 뒤에도 답할 수 있게 하는 필드 | V1 |
+| Confidence | Number (0~1) | | V1 |
+| Review Status | Select | `Confirmed` `Needs Review` — 중요 결정은 사람이 확인할 Queue가 필요하다는 요구사항을 이 필드로 구현 | V1 |
+
+## 5. Tasks
+
+| Property | Notion 타입 | 설명 / 옵션 | V1/V2 |
+|---|---|---|---|
+| Title | Title | 예: "수정 견적서 발송" | V1 |
+| Task ID | Text | `TASK-YYYYMMDD-NNN`, n8n 생성 | V1 |
+| Owner | Relation → People | | V1 |
+| Due Date | Date | | V1 |
+| Project | Relation → Projects | | V1 |
+| Source Recording | Relation → Recordings | | V1 |
+| **Nature** | Select | `Committed` `Suggested` — **가장 중요한 필드**. 대화에서 실제로 약속된 것과 Claude가 제안한 것을 반드시 구분. Claude가 Committed를 함부로 만들면 안 됨(프롬프트 규칙으로 강제, STEP5에서 다룸) | V1 |
+| Status | **Status**(네이티브) | `Not Started` → `In Progress` → `Done` (+ `Blocked` 추가 가능) — Tasks는 Notion Status 타입의 전형적 용도라 Select 대신 Status 사용 | V1 |
+| Evidence | Text | Transcript 발췌/timestamp (선택) | V1 |
+
+## 6. Template Library
+
+| Property | Notion 타입 | 설명 / 옵션 | V1/V2 |
+|---|---|---|---|
+| Template Name | Title | 예: "Sales Meeting" | V1 |
+| Template ID | Text | 예: `TPL-SALES-01`. 소수 항목이라 **수동 입력** (n8n 자동생성 대상 아님) | V1 |
+| Recording Type Match | Select | Recordings.Recording Type과 동일한 9종 목록 — Template Router가 이 필드로 매칭 | V1 |
+| Output Fields | Text (여러 줄) | 템플릿이 뽑아야 할 항목 리스트. 예: "고객요구사항, Pain Points, Budget, Decision Maker, Competitors, Objections, Proposal, Next Step" | V1 |
+| Version | Number | | V1 |
+| Status | Select | `Active` `Draft` `Deprecated` | V1 |
+| Recordings | Relation (자동 역방향, Recordings.Template) | | V1 |
+| 템플릿 하나가 여러 Recording Type에 매칭 (Multi-select) | - | V1은 1 Template : 1 Type 가정. 여러 유형 매칭은 과설계 방지로 보류 | **V2** |
+
+---
+
+## 관계 지도 (최종, 6개 DB 전체)
+
+| 정방향 Relation (직접 만드는 곳) | 역방향 (자동 생성, 손대지 않음) |
+|---|---|
+| Recordings.Project → Projects | Projects.Recordings |
+| Recordings.People → People | People.Recordings |
+| Recordings.Template → Template Library | Template Library.Recordings |
+| Decisions.Project → Projects | Projects.Decisions |
+| Decisions.People → People | People.Decisions |
+| Decisions.Source Recording → Recordings | Recordings.Decisions |
+| Tasks.Project → Projects | Projects.Tasks |
+| Tasks.Owner → People | People.Tasks |
+| Tasks.Source Recording → Recordings | Recordings.Tasks |
+
+## 생성 순서 (Notion은 Relation 대상 DB가 먼저 존재해야 함)
+1. People, Projects, Template Library (서로 의존 없음 — 먼저 생성)
+2. Recordings (Project/People/Template 참조)
+3. Decisions, Tasks (Project/People/Recordings 전부 참조 — 마지막)
 
 ## 자가검수
-- Keywords를 Multi-select로 안 하고 Text로 내린 것, People↔Projects를 Relation 대신 Rollup으로 내린 것 — 둘 다 "장기 운영시 관리 불가능해지는 패턴"을 피하려는 의도적 단순화. 모순 없음.
-- 아직 Decisions/Tasks/Template Library 미작성 — 다음 배치 대상.
+- Keywords=Text, People↔Projects=Rollup — 장기 운영 시 관리 불가능해지는 패턴을 피하려는 의도적 단순화, 모순 없음.
+- Nature(Committed/Suggested)와 Status(Not Started/.../Done)를 같은 속성에 합치지 않고 분리 — "약속 여부"와 "진행 상태"는 서로 다른 축이라 섞으면 안 됨. 의도대로 분리됨.
+- Review Status(Decisions)와 Status(Recordings)의 Needs Review가 중복처럼 보이지만, 전자는 "이 결정을 신뢰할 수 있는가", 후자는 "이 녹음 처리가 끝났는가"로 레이어가 다름 — 모순 아님.
+- STEP2 설계 완료. STEP3(Drive Schema)·STEP4(JSON Schema)는 아직 미착수.
