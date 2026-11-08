@@ -10,10 +10,10 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 - [x] STEP 1 — STT 엔진 선정 확정: **로컬 Whisper** (whisper.cpp/MLX, large-v3) — 2026-11-08, Soniox에서 전환. `docs/01-stt-selection.md` v4
 - [x] PLAUD AutoFlow 끄기 (사용자 확인, 2026-09-14) — quota 비의존 전제 실제로 충족됨
 - [x] n8n 배포 환경 결정: Mac 상시구동 self-hosted (로컬 whisper 호출 때문에 필수가 됨)
+- [x] STEP 2 — Notion Schema 실제 생성 완료 (SCOBYISLAND 워크스페이스). 컨테이너 페이지 "PLAUD Ledger": https://app.notion.com/p/4128d309896b81f99830f0e3426f9e04 — 그 아래 People/Projects/Template Library/Recordings/Decisions/Tasks 6개 DB + 전체 Relation/Rollup 구성 완료. 상세는 `docs/05-notion-schema.md`
 
 ## 진행중
 - (없음 — 맥 로컬에서 whisper.cpp/pyannote 설치·테스트 대기)
-- STEP 2 — Notion Schema 설계 완료 (`docs/05-notion-schema.md`): Recordings/Projects/People/Decisions/Tasks/Template Library 6개 DB. 실제 Notion(워크스페이스: SCOBYISLAND, scobyisland@gmail.com)에 생성할지 승인 대기
 
 ## 결정사항 (변경 금지, 재질문 금지)
 - 4계층 데이터 분리: Source(Audio) / Transcript / Intelligence(Claude 출력) / Ledger(Notion) — 모델·템플릿 교체 시 재처리 가능해야 함

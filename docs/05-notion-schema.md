@@ -1,4 +1,18 @@
-# STEP 2 — Notion Schema (완성: Recordings · Projects · People · Decisions · Tasks · Template Library)
+# STEP 2 — Notion Schema (완성 + 실제 생성됨: Recordings · Projects · People · Decisions · Tasks · Template Library)
+
+## ✅ 실제 Notion에 생성 완료 (SCOBYISLAND 워크스페이스, 2026-11-08)
+컨테이너 페이지: [PLAUD Ledger](https://app.notion.com/p/4128d309896b81f99830f0e3426f9e04)
+
+| DB | 링크 |
+|---|---|
+| People | https://app.notion.com/p/e15c18fc3cbd425e9609c0904499bf73 |
+| Projects | https://app.notion.com/p/769f6bf4a5214116b28933227f1b06d1 |
+| Template Library | https://app.notion.com/p/56f58f17a2f44c22b18121011f34454a |
+| Recordings | https://app.notion.com/p/a7c59ade60de495983af5ca7f08e9924 |
+| Decisions | https://app.notion.com/p/c458a081f1ba4f0781985056f1168534 |
+| Tasks | https://app.notion.com/p/c8a0fc741d864aa4b596f4613cf653c8 |
+
+아래 설계대로 전부 생성됨. Projects에는 Recording Count/Last Activity/Tasks Count 롤업, People에는 Projects 롤업(Recordings 경유)도 추가 완료.
 
 > 워크스페이스: **SCOBYISLAND** (scobyisland@gmail.com, 확인됨). 실제 생성 가능한 수준으로 설계. V1(지금 만들 것)과 V2(나중에 추가할 것)를 구분함.
 
