@@ -5,7 +5,7 @@
 ## ✅ AutoFlow 완료 (사용자 확인, 2026-09-14)
 사용자가 PLAUD 앱에서 직접 껐음. Claude는 조회 전용 MCP만 가지고 있어 설정 변경을 검증할 방법은 없음(사용자 확인에 근거). 이제 quota 비의존 전제가 실제로 충족됨.
 
-## 갱신된 파이프라인
+## 갱신된 파이프라인 (v3, 2026-11-08 — STT를 로컬 Whisper로 전환)
 
 ```
 PLAUD (녹음, AutoFlow OFF)
@@ -13,13 +13,19 @@ PLAUD (녹음, AutoFlow OFF)
 원본 오디오 (presigned URL, 24h)
   ↓ [n8n: Drive 업로드]
 Google Drive (Source Vault)
-  ↓ [n8n: HTTP Request → Soniox API]
-Transcript (화자분리+timestamp 포함)
+  ↓ [n8n: Execute Command 노드 → whisper.cpp/MLX Whisper (로컬 실행, large-v3)]
+Transcript (텍스트)
+  ↓ [n8n: Execute Command 노드 → pyannote.audio (로컬, 화자분리 별도 실행)]
+Transcript + 화자 레이블 (timestamp 기준 merge)
   ↓ [n8n: Claude 호출 — Normalize→Understand→Render]
 Structured JSON
   ↓ [n8n: Notion API]
 Notion Ledger (Recordings/Projects/People/Decisions/Tasks)
 ```
+
+**왜 바뀌었나**: Soniox(해외 리전)로 민감한 사업 대화(계약금액·자금송금·법무상담)를 보내는 리스크 때문에, 오디오가 네트워크를 전혀 나가지 않는 로컬 Whisper로 전환(`docs/01-stt-selection.md` v4 참조). 정확도는 Soniox/RTZR보다 낮아짐을 감수한 결정.
+
+**n8n 자체 호스팅이 이제 선택이 아니라 필수가 됨**: 로컬 whisper.cpp/pyannote를 Execute Command로 호출하려면 n8n이 같은 맥에서 돌아야 함 — Cloud n8n으로는 애초에 불가능. 이미 결정했던 "Mac 상시구동 self-hosted n8n"과 정확히 일치.
 
 ## n8n 배포 방식 — **Self-hosted (Community Edition) 권장**
 
@@ -44,14 +50,16 @@ Notion Ledger (Recordings/Projects/People/Decisions/Tasks)
 | Enterprise | 별도 협의 | 무제한 |
 
 ## 확정/변경 사항 요약
-- STT: **Soniox** (STEP1)
+- STT: **로컬 Whisper** (whisper.cpp/MLX, large-v3 또는 large-v3-turbo) — 2026-11-08, Soniox에서 전환 (`docs/01-stt-selection.md` v4)
+- 화자분리: **pyannote.audio 별도 실행**, timestamp 기준 merge (WhisperX는 Mac에 안 맞아 비권장)
 - PLAUD 오디오 추출: **n8n MCP Client Tool → `https://mcp.plaud.ai/mcp`(OAuth2)**가 1차안, 실패 시 **Plaud CLI + Execute Command 노드** 폴백
-- n8n 배포: **Self-hosted Community Edition**(무료, executions 무제한, CLI 폴백 가능)
+- n8n 배포: **Self-hosted, Mac 상시구동** — 로컬 whisper/pyannote 호출 때문에 이제 선택이 아니라 필수
 - PLAUD AutoFlow: **꺼짐 (완료)**
 
 ## 다음 액션
 - [x] (사용자) PLAUD 앱에서 AutoFlow 끄기
-- [ ] (사용자) n8n self-hosted 설치 환경 결정 (Mac 상시구동 / VPS 등)
+- [x] (사용자) n8n self-hosted 설치 환경 결정 → Mac 상시구동
+- [ ] (맥 로컬) whisper.cpp/MLX Whisper + pyannote.audio 설치, 실제 속도·정확도 테스트
 - [ ] n8n에 MCP Client Tool 노드로 `https://mcp.plaud.ai/mcp` 연결 실제 테스트
 - [ ] 연결 실패 시 Plaud CLI 폴백 검토
 - [ ] 위 항목 정리되면 STEP2(Notion Schema)로 진행
