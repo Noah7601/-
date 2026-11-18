@@ -15,9 +15,10 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 - [x] STEP 4 — Claude JSON Schema 설계 완료 (`docs/07-claude-json-schema.md`): recording/source_evidence/template/confidence/people/projects/summary/decisions/tasks 9개 최상위 객체, Draft-07 JSON Schema, Notion 매핑표. Claude는 ID를 절대 생성하지 않고 n8n이 준 recording_id를 echo만 하도록 강제
 - [x] STEP 5 — Prompt Architecture 설계 완료 (`docs/08-prompt-architecture.md`): Normalize→Router→Understand→Render 4-Pass 실제 system prompt 전문. Task Committed/Suggested 판정 규칙, Router confidence 임계값(0.6) 기반 n8n 강제 덮어쓰기 정책 포함. 원 브리프의 Router 순서 모순(STEP6 vs STEP7)을 STEP6 순서로 확정하고 이유 기록
 - [x] STEP 6 — n8n Workflow 노드 단위 설계 완료 (`docs/09-n8n-workflow.md`): Cron→PLAUD MCP 수집→Drive 저장→로컬 whisper.cpp/pyannote→Claude 4-Pass→스키마 검증→Notion Upsert, 27개 노드 전체 + 노드별 실패 처리. 설계 중 Recordings DB에 **Plaud File ID** 속성 빠진 걸 발견해 실제 Notion에 추가 완료(1차 idempotency 키). Failed Queue는 별도 DB 없이 Recordings.Status=Failed 뷰로 재사용
+- [x] STEP 7 — MVP 구축 순서 설계 완료 (`docs/10-mvp-build-order.md`): M0(설치)~M7(Cron 상시운영)까지 7단계. M5가 브리프의 MVP 목표(Audio→Transcript→Claude→Notion→Decision/Task) 달성 지점. **STEP1~7 전체 설계 완료.**
 
 ## 진행중
-- (없음 — 맥 로컬에서 whisper.cpp/pyannote 설치·테스트 대기)
+- (설계 단계 종료 — 다음은 `docs/10-mvp-build-order.md`의 M0부터 맥 로컬에서 실제 구현 시작)
 
 ## 결정사항 (변경 금지, 재질문 금지)
 - 4계층 데이터 분리: Source(Audio) / Transcript / Intelligence(Claude 출력) / Ledger(Notion) — 모델·템플릿 교체 시 재처리 가능해야 함
