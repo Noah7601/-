@@ -83,10 +83,15 @@ n8n이 폴더를 만들기 전에 **`PLAUD Ledger/YYYY/MM/REC-...` 경로가 이
 - `PLAUD Ledger` 루트 폴더는 **비공개 유지** — 계약금액·법무상담 등 민감한 내용이 많아 로컬 Whisper로 전환한 것과 같은 이유.
 - Notion에 노출되는 두 링크(`audio`, `transcript.txt`)만 "링크가 있는 사용자" 수준으로 최소 공유, 폴더 전체 공유는 하지 않음.
 
-## ⚠️ 확인 필요 (사용자 결정)
-- Drive에 기존 폴더 체계(`00_INBOX_분류대기` 등 번호 prefix 방식)가 있던 걸 확인했음 — `PLAUD Ledger`를 Drive 최상위에 독립 폴더로 둘지, 기존 번호 체계 안(`0X_PLAUD Ledger`처럼) 편입시킬지 결정 필요.
+## ✅ 실제 Drive에 생성 완료 (2026-11-18, scobyisland@gmail.com)
+사용자 결정: 기존 번호 체계(`00_INBOX_분류대기` 등)에 편입하지 않고 **독립 최상위 폴더**로 생성.
+
+| 폴더 | 링크 |
+|---|---|
+| PLAUD Ledger (루트) | https://drive.google.com/drive/folders/1PmVXihV6bpq6xLwMdgL5gH6pNLob596s |
+| 2026/11 | https://drive.google.com/drive/folders/1438oQQk3KBc5m03krzUs70Q_m_J1ydpE |
+
+이후 월이 바뀌면 n8n이 Idempotency 원칙(검색 후 없으면 생성)에 따라 자동으로 새 월 폴더를 만든다.
 
 ## 다음 액션
-- [ ] 위 확인 필요 항목 결정
-- [ ] 결정되면 실제 Drive에 `PLAUD Ledger` 루트 폴더 생성
 - [ ] STEP 4 (Claude JSON Schema) 진행
