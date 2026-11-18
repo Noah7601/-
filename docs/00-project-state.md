@@ -14,6 +14,7 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 - [x] STEP 3 — Drive Schema 설계 + 실제 생성 완료 (`docs/06-drive-schema.md`): `/PLAUD Ledger/YYYY/MM/REC-.../` 구조, 고정 파일명(audio/transcript.json/transcript.txt/claude_output.json/metadata.json), Idempotency·재처리 덮어쓰기 정책 정의. Drive 루트에 `PLAUD Ledger/2026/11` 독립 최상위 폴더로 생성 완료(scobyisland@gmail.com)
 - [x] STEP 4 — Claude JSON Schema 설계 완료 (`docs/07-claude-json-schema.md`): recording/source_evidence/template/confidence/people/projects/summary/decisions/tasks 9개 최상위 객체, Draft-07 JSON Schema, Notion 매핑표. Claude는 ID를 절대 생성하지 않고 n8n이 준 recording_id를 echo만 하도록 강제
 - [x] STEP 5 — Prompt Architecture 설계 완료 (`docs/08-prompt-architecture.md`): Normalize→Router→Understand→Render 4-Pass 실제 system prompt 전문. Task Committed/Suggested 판정 규칙, Router confidence 임계값(0.6) 기반 n8n 강제 덮어쓰기 정책 포함. 원 브리프의 Router 순서 모순(STEP6 vs STEP7)을 STEP6 순서로 확정하고 이유 기록
+- [x] STEP 6 — n8n Workflow 노드 단위 설계 완료 (`docs/09-n8n-workflow.md`): Cron→PLAUD MCP 수집→Drive 저장→로컬 whisper.cpp/pyannote→Claude 4-Pass→스키마 검증→Notion Upsert, 27개 노드 전체 + 노드별 실패 처리. 설계 중 Recordings DB에 **Plaud File ID** 속성 빠진 걸 발견해 실제 Notion에 추가 완료(1차 idempotency 키). Failed Queue는 별도 DB 없이 Recordings.Status=Failed 뷰로 재사용
 
 ## 진행중
 - (없음 — 맥 로컬에서 whisper.cpp/pyannote 설치·테스트 대기)

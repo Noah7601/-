@@ -31,6 +31,7 @@
 |---|---|---|---|
 | Title | Title | 사람이 읽는 제목 (PLAUD 원제목 그대로) | V1 |
 | Recording ID | Text | `REC-YYYYMMDD-NNN`, n8n 생성, 검색용 유니크 키 | V1 |
+| Plaud File ID | Text | PLAUD `list_files`의 원본 id. **STEP6 설계 중 추가됨** — 이게 없으면 "이미 수집한 PLAUD 녹음인지" 1차 판별이 불가능 | V1 |
 | Recorded At | Date (시간 포함) | 녹음 시작 시각 | V1 |
 | Recording Type | Select | `General Meeting` `Sales Meeting` `Customer Consultation` `Phone Call` `Brainstorming` `Interview` `Personal Idea` `Project Meeting` `Other` (Template Router 01~09) | V1 |
 | Status | Select | `Queued` `Transcribing` `Analyzing` `Needs Review` `Completed` `Failed` | V1 |
