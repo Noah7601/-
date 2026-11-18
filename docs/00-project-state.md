@@ -11,6 +11,7 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 - [x] PLAUD AutoFlow 끄기 (사용자 확인, 2026-09-14) — quota 비의존 전제 실제로 충족됨
 - [x] n8n 배포 환경 결정: Mac 상시구동 self-hosted (로컬 whisper 호출 때문에 필수가 됨)
 - [x] STEP 2 — Notion Schema 실제 생성 완료 (SCOBYISLAND 워크스페이스). 컨테이너 페이지 "PLAUD Ledger": https://app.notion.com/p/4128d309896b81f99830f0e3426f9e04 — 그 아래 People/Projects/Template Library/Recordings/Decisions/Tasks 6개 DB + 전체 Relation/Rollup 구성 완료. 상세는 `docs/05-notion-schema.md`
+- [x] STEP 3 — Drive Schema 설계 완료 (`docs/06-drive-schema.md`): `/PLAUD Ledger/YYYY/MM/REC-.../` 구조, 고정 파일명(audio/transcript.json/transcript.txt/claude_output.json/metadata.json), Idempotency·재처리 덮어쓰기 정책 정의. 실제 Drive 폴더 생성은 미착수
 
 ## 진행중
 - (없음 — 맥 로컬에서 whisper.cpp/pyannote 설치·테스트 대기)
@@ -34,6 +35,7 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 - `docs/04-n8n-mac-setup.md` — Mac 상시구동 Docker 설치 가이드(docker-compose.yml 포함). 현재 설계(폴링 방식)는 인바운드 웹훅이 필요 없어 포트포워딩 불필요.
 
 ## 미해결 / 확인 필요
+- Drive의 기존 `00_INBOX_분류대기` 등 번호 prefix 폴더 체계와 `PLAUD Ledger`를 독립 최상위 폴더로 둘지 편입시킬지 결정 필요
 - (맥 로컬) whisper.cpp 또는 MLX Whisper 설치, large-v3/large-v3-turbo 실제 속도·정확도 테스트 — 아직 안 해봄
 - (맥 로컬) pyannote.audio 설치 및 화자분리 merge 로직 검증 — HuggingFace 토큰 필요 여부 미확인
 - n8n MCP Client Tool 노드 ↔ `https://mcp.plaud.ai/mcp` OAuth2 실제 연결 테스트 (아직 안 해봄)
