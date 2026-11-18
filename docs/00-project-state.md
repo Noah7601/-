@@ -12,6 +12,7 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 - [x] n8n 배포 환경 결정: Mac 상시구동 self-hosted (로컬 whisper 호출 때문에 필수가 됨)
 - [x] STEP 2 — Notion Schema 실제 생성 완료 (SCOBYISLAND 워크스페이스). 컨테이너 페이지 "PLAUD Ledger": https://app.notion.com/p/4128d309896b81f99830f0e3426f9e04 — 그 아래 People/Projects/Template Library/Recordings/Decisions/Tasks 6개 DB + 전체 Relation/Rollup 구성 완료. 상세는 `docs/05-notion-schema.md`
 - [x] STEP 3 — Drive Schema 설계 + 실제 생성 완료 (`docs/06-drive-schema.md`): `/PLAUD Ledger/YYYY/MM/REC-.../` 구조, 고정 파일명(audio/transcript.json/transcript.txt/claude_output.json/metadata.json), Idempotency·재처리 덮어쓰기 정책 정의. Drive 루트에 `PLAUD Ledger/2026/11` 독립 최상위 폴더로 생성 완료(scobyisland@gmail.com)
+- [x] STEP 4 — Claude JSON Schema 설계 완료 (`docs/07-claude-json-schema.md`): recording/source_evidence/template/confidence/people/projects/summary/decisions/tasks 9개 최상위 객체, Draft-07 JSON Schema, Notion 매핑표. Claude는 ID를 절대 생성하지 않고 n8n이 준 recording_id를 echo만 하도록 강제
 
 ## 진행중
 - (없음 — 맥 로컬에서 whisper.cpp/pyannote 설치·테스트 대기)
@@ -22,6 +23,8 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 - Task는 Committed(대화 중 확약) vs Suggested(AI 제안) 구분, AI가 임의로 확정 생성 금지
 - Claude 분석은 단일 거대 프롬프트가 아닌 Normalize → Understand → Render 3-Pass로 분리
 - Transcript에 없는 정보 생성 금지(환각 방지)가 최우선 원칙
+- **Claude는 ID(recording_id/decision_id/task_id)를 생성하지 않는다** — n8n이 생성한 recording_id를 echo만 하고, Decision/Task ID는 애초에 Claude 출력 JSON에 없음(`docs/07-claude-json-schema.md`)
+- **Decision/Task는 evidence(transcript 발췌+timestamp) 없이는 생성하지 않는다**
 - **STT 확정: 로컬 Whisper** (whisper.cpp/MLX Whisper, large-v3 또는 large-v3-turbo, 맥 로컬 실행) — 2026-11-08. 민감 비즈니스 데이터(계약금액·자금송금·법무상담)가 해외로 전송되지 않아야 한다는 이유로 Soniox에서 전환. ⚠️ 한국어 정확도는 Soniox(4.3%)/RTZR(5.91%)보다 낮음(WER 14.5~14.9%)을 감수하고 결정 — 근거는 `docs/01-stt-selection.md` v4 참조
 - **화자분리**: pyannote.audio를 별도 실행해 timestamp 기준으로 whisper 결과와 merge (WhisperX는 Mac에 부적합해 비권장)
 
