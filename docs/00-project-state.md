@@ -13,6 +13,7 @@ Recording ID로 Audio/Transcript/Notion/Decision/Task/처리로그를 끝까지 
 - [x] STEP 2 — Notion Schema 실제 생성 완료 (SCOBYISLAND 워크스페이스). 컨테이너 페이지 "PLAUD Ledger": https://app.notion.com/p/4128d309896b81f99830f0e3426f9e04 — 그 아래 People/Projects/Template Library/Recordings/Decisions/Tasks 6개 DB + 전체 Relation/Rollup 구성 완료. 상세는 `docs/05-notion-schema.md`
 - [x] STEP 3 — Drive Schema 설계 + 실제 생성 완료 (`docs/06-drive-schema.md`): `/PLAUD Ledger/YYYY/MM/REC-.../` 구조, 고정 파일명(audio/transcript.json/transcript.txt/claude_output.json/metadata.json), Idempotency·재처리 덮어쓰기 정책 정의. Drive 루트에 `PLAUD Ledger/2026/11` 독립 최상위 폴더로 생성 완료(scobyisland@gmail.com)
 - [x] STEP 4 — Claude JSON Schema 설계 완료 (`docs/07-claude-json-schema.md`): recording/source_evidence/template/confidence/people/projects/summary/decisions/tasks 9개 최상위 객체, Draft-07 JSON Schema, Notion 매핑표. Claude는 ID를 절대 생성하지 않고 n8n이 준 recording_id를 echo만 하도록 강제
+- [x] STEP 5 — Prompt Architecture 설계 완료 (`docs/08-prompt-architecture.md`): Normalize→Router→Understand→Render 4-Pass 실제 system prompt 전문. Task Committed/Suggested 판정 규칙, Router confidence 임계값(0.6) 기반 n8n 강제 덮어쓰기 정책 포함. 원 브리프의 Router 순서 모순(STEP6 vs STEP7)을 STEP6 순서로 확정하고 이유 기록
 
 ## 진행중
 - (없음 — 맥 로컬에서 whisper.cpp/pyannote 설치·테스트 대기)
